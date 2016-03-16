@@ -1,0 +1,51 @@
+RitX 1.6:
+  * now RitX uses the new version of Bing Search API (--bing-api)
+  * using random info in User Agent and Referrer headers
+  * using the the ViewDNS.info API service --vd-api (free)
+  * added option --max to set the maximum number of pages to fetch (10)
+  * added Pagesinvestigator.com support (cool website)
+  * updated Cloudflare detection technique
+  * now you can update RitX with Subversion (svn update)
+  * now results are more accurate
+  * made several changes
+
+RitX 1.5:
+  * now RitX can check if the website uses CloudFlare.
+  * now RitX can retreive more than 50.000 domain
+  * user requested interrupt (CTRL+C) now is handled.
+  * now checked domains are now saved to (IP-checked.txt) 
+  * added ewhois.com and DNStrails.com services
+  * added --list option to list all available services
+  * added proxy support (--proxy)
+  * added User-Agent header change option (--user-agent)
+  * added README and CHANGELOG files
+  * removed reverseip.us
+  * fixed robtex and ViewDNS.info functions
+  * replaced IP resolution with DNS resolution for extracted domains to eleminate old records.
+  * improved multi-threading functions
+  * removed support for shared variables threads::shared (slow) 
+  * minor bugs fixed.
+  * major code refactoring.
+RitX 1.4:
+  * now RitX use the Bing API (faster)
+  * added two more options
+  *   --bing to save bing results
+  *   --verbose to show more informations
+  * added a new website Viewdns.info (a great website)
+  * made some changes.
+  * removed lazy and dead websites
+RitX 1.3:
+  * Rename the script to RitX.
+  * Rewrite the entire code.
+  * Now RitX is command line tool.
+  * Better performance.
+  * add the multi-threading functions.
+  * Now results are more accurate.
+  * Fix all broken Regex and bugs.
+RitX 1.2:
+  * Added 2 more websites.
+  * Removed all dead services. 
+  * Fix some bugs.
+  * Made some changes.
+RitX 1.0:
+  * RitX initial release.
