@@ -1,12 +1,9 @@
 #!/usr/bin/env perl
 
-# RitX - Reverse IP Tool v1.6
-# Copyright (C) 2009-2013
-# r0b10S-12 <r12xr00tu@gmail.com>
+# RitX - Reverse IP Tool v1.7
 
 print "\n\t+-----------------------------+\n";
-print "\t|           RitX 1.6          |\n";
-print "\t|      Coded by r0b10S-12     |\n";
+print "\t|           RitX 1.7          |\n";
 print "\t+-----------------------------+\n\n\n";
 
 use LWP::Simple;
@@ -71,6 +68,12 @@ my %SERV = (
 		URL		=>	"http://www.my-ip-neighbors.com/?domain=%s",
 		REGEX	=>	'<td class="action"\starget="\_blank"><a\shref="http\:\/\/whois\.domaintools\.com\/(.*?)"\starget="\_blank"\sclass="external">Whois<\/a><\/td>',
 	},
+	Hackertarget =>{
+		SITE	=>	"Api.hackertarget.com",
+		URL		=>	"http://api.hackertarget.com/reverseiplookup/?q=%s",
+		REGEX	=>	'([^\n]+)',
+	},
+	
 	Yougetsignal =>{
 		SITE	=>	"Yougetsignal.com",
 		DATA	=>	'remoteAddress',
@@ -342,7 +345,7 @@ sub add
 	my $x = lc($_[0]);
 	($x =~ /[\<\"]|freecellphonetracer|reversephonedetective|americanhvacparts|freephonetracer|phone\.addresses|reversephone\.theyellowpages|\.in-addr\.arpa|^\d+(\.|-)\d+(\.|-)/) ? return:0;
 	push(@{$SERV{$X}->{DUMP}},$x) if($verbose);
-	$x =~ s/http(.|s)\:\/\/|\*\.|^www\.|\///;#
+	$x =~ s/https?\:\/\/|\*\.|^www\.|\///;#
 	++$SERV{$X}->{NB};
 	push(@result,$x);
 }
