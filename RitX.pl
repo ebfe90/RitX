@@ -5,10 +5,10 @@
 print "\n\t+-----------------------------+\n";
 print "\t|           RitX 1.7          |\n";
 print "\t+-----------------------------+\n\n\n";
-
 use LWP::Simple;
 use Socket;
 use Getopt::Long;
+use LWP::Debug qw(+);
 
 
 # check missing modules...
@@ -63,11 +63,11 @@ HELP
 }
 
 my %SERV = (
-	Myipneighbors =>{
-		SITE	=>	"My-ip-neighbors.com",
-		URL		=>	"http://www.my-ip-neighbors.com/?domain=%s",
-		REGEX	=>	'<td class="action"\starget="\_blank"><a\shref="http\:\/\/whois\.domaintools\.com\/(.*?)"\starget="\_blank"\sclass="external">Whois<\/a><\/td>',
-	},
+	#Myipneighbors =>{
+	#	SITE	=>	"My-ip-neighbors.com",
+	#	URL		=>	"http://www.my-ip-neighbors.com/?domain=%s",
+	#	REGEX	=>	'<td class="action"\starget="\_blank"><a\shref="http\:\/\/whois\.domaintools\.com\/(.*?)"\starget="\_blank"\sclass="external">Whois<\/a><\/td>',
+	#},
 	Hackertarget =>{
 		SITE	=>	"Api.hackertarget.com",
 		URL		=>	"http://api.hackertarget.com/reverseiplookup/?q=%s",
@@ -90,16 +90,16 @@ my %SERV = (
 		URL		=>	"http://www.myiptest.com/staticpages/index.php/Reverse-IP/%s",
 		REGEX	=>	"<td style='width:200px;'><a href='http:\/\/www\.myiptest\.com\/staticpages\/index\.php\/Reverse-IP\/.*?'>(.*?)<\/a><\/td>",
 	},
-	WebHosting =>{
-		SITE	=>	"Whois.WebHosting.info",
-		URL		=>	"http://whois.webhosting.info/%s?pi=%d&ob=SLD&oo=DESC",
-		SP		=>	'Whoiswebhosting()',
-	},
-	Domainsbyip =>{
-		SITE	=>	'Domainsbyip.com',
-		URL		=>	'http://domainsbyip.com/%s/', 
-		REGEX	=>	'<li class="site.*?"><a href="http\:\/\/domainsbyip.com\/domaintoip\/(.*?)/">.*?<\/a>',
-	},
+	#WebHosting =>{
+	#	SITE	=>	"Whois.WebHosting.info",
+	#	URL		=>	"http://whois.webhosting.info/%s?pi=%d&ob=SLD&oo=DESC",
+	#	SP		=>	'Whoiswebhosting()',
+	#},
+	#Domainsbyip =>{
+	#	SITE	=>	'Domainsbyip.com',
+	#	URL		=>	'http://domainsbyip.com/%s/', 
+	#	REGEX	=>	'<li class="site.*?"><a href="http\:\/\/domainsbyip.com\/domaintoip\/(.*?)/">.*?<\/a>',
+	#},
 	Ipadress =>{
 		SITE	=>	"Ip-adress.com",
 		URL		=>	"http://www.ip-adress.com/reverse_ip/%s",
@@ -112,29 +112,29 @@ my %SERV = (
 	},
 	ewhois =>{
 		SITE	=>	"Ewhois.com",
-		URL		=>	"http://www.ewhois.com/",
+		URL		=>	"https://ewhois.com/",
 		SP		=>	'eWhois()',
 	},
 	Sameip =>{
 		SITE	=>	"Sameip.org",
-		URL		=>	"http://sameip.org/ip/%s/",
-		REGEX	=>	'<a href="http:\/\/.*?" rel=\'nofollow\' title="visit .*?" target="_blank">(.*?)<\/a>',
+		URL		=>	"http://www.sameip.org/%s",
+		REGEX	=>	'<li>(.+\..+)<\/li>',
 	},
-	Robtex =>{
-		SITE	=>	"Robtex.com",
-		URL		=>	"http://www.robtex.com/ajax/dns/%s.html",
-		REGEX	=>	"<span id=\"dns.*?\"><a href=\"\/\/dns\.robtex\.com\/(.*?)\.html\"  >",
-	},
-	Webmax =>{
-		SITE	=>	"Tools.web-max.ca",
-		URL		=>	"http://ip2web.web-max.ca/?byip=1&ip=%s",
-		REGEX	=>	'<a href="http:\/\/.*?" target="_blank">(.*?)<\/a>',
-	},
-	DNStrails =>{
-		SITE	=>	"DNStrails.com",
-		URL		=>	"http://www.DNStrails.com/tools/lookup.htm?ip=%s&date=recent",
-		REGEX	=>	'date=recent">(.*?)<\/a>\s\(as\sa\swebserver\)',
-	},
+	#Robtex =>{
+	#	SITE	=>	"Robtex.com",
+	#	URL		=>	"http://www.robtex.com/ajax/dns/%s.html",
+	#	REGEX	=>	"<span id=\"dns.*?\"><a href=\"\/\/dns\.robtex\.com\/(.*?)\.html\"  >",
+	#},
+	#Webmax =>{
+	#	SITE	=>	"Tools.web-max.ca",
+	#	URL		=>	"http://ip2web.web-max.ca/?byip=1&ip=%s",
+	#	REGEX	=>	'<a href="http:\/\/.*?" target="_blank">(.*?)<\/a>',
+	#},
+	#DNStrails =>{
+	#	SITE	=>	"DNStrails.com",
+	#	URL		=>	"http://www.DNStrails.com/tools/lookup.htm?ip=%s&date=recent",
+	#	REGEX	=>	'date=recent">(.*?)<\/a>\s\(as\sa\swebserver\)',
+	#},
 	Viewdns =>{
 		SITE	=>	"Viewdns.info",
 		URL		=>	"http://pro.viewdns.info/reverseip/?host=%s&apikey=%s&output=json",
@@ -237,21 +237,54 @@ else
 
 
 my $DNSx = gethostbyaddr(inet_aton($target),AF_INET);
-# Check if the target uses CloudFlare service
-my $IPx = unpack("N",inet_aton($target));
 
-#https://www.cloudflare.com/ips-v4
-if(($IPx >= 3324641278 and $IPx <= 3324608512)
-or ($IPx >= 3161612288 and $IPx <= 3161616382)
-or ($IPx >= 3193827328 and $IPx <= 3193831422)
-or ($IPx >= 1822605312 and $IPx <= 1822621694)
-or ($IPx >= 2372222976 and $IPx <= 2372239358)
-or ($IPx >= 1729546240 and $IPx <= 1729547262)
-or ($IPx >= 2918526976 and $IPx <= 2918531070)
-or ($IPx >= 3340468224 and $IPx <= 3340470270)
-or ($IPx >= 3428692224 and $IPx <= 3428692478)
-or ($IPx >= 3428708352 and $IPx <= 3428708606)
-)
+
+
+# Check if the target uses CloudFlare service
+
+sub is_couldflare_ip
+{
+	#From: https://www.cloudflare.com/ips-v4
+	my $cloudflare_ipv4_subnets = "103.21.244.0/22
+103.22.200.0/22
+103.31.4.0/22
+104.16.0.0/12
+108.162.192.0/18
+131.0.72.0/22
+141.101.64.0/18
+162.158.0.0/15
+172.64.0.0/13
+173.245.48.0/20
+188.114.96.0/20
+190.93.240.0/20
+197.234.240.0/22
+198.41.128.0/17
+199.27.128.0/21";
+	# target ip in binary
+	my $target_ip_bin = unpack("N",inet_aton($_[0]));
+	foreach $cidr (split /^/, $cloudflare_ipv4_subnets) {
+
+		my ($ip_address,$netmask) = split(/\//,$cidr);
+		my $ip_address_binary = inet_aton( $ip_address );
+		my $netmask_binary = ~pack("N", (2**(32-$netmask))-1);
+		my $first_valid_ip_bin = unpack('N', $ip_address_binary & $netmask_binary ) + 1;
+		my $first_valid_ip = inet_ntoa( pack( 'N', $first_valid_ip_bin ));
+		my $last_valid_ip_bin = unpack('N', $ip_address_binary | ~$netmask_binary ) - 1 ;
+		my $last_valid_ip = inet_ntoa( pack( 'N', $last_valid_ip_bin));
+		#print $first_valid_ip  . "\n";
+		#print $last_valid_ip  . "\n";
+		if ($target_ip_bin >= $first_valid_ip_bin and $target_ip_bin  <=  $last_valid_ip_bin)
+		{
+			return 1;
+		}
+
+
+	}
+
+	return 0
+}
+
+if(is_couldflare_ip($target))
 {
 	print "[WARNING] The target uses CloudFlare's service!!\n\n";
 	print "[!] do you wanna continue? [y/n]:";
@@ -272,7 +305,7 @@ or ($IPx >= 3428708352 and $IPx <= 3428708606)
 
 # Global variables
 $bingApiKey  = $bing_api || 'y+WsWbJTyl/93GXbvGXo7kXbB3nxrEz2kExRstXOI84=';#get your own code :p
-$VERSION     = '1.6';
+$VERSION     = '1.7';
 $TMPdir      = "tmp";
 $useragent ||= $useragents[int(rand(scalar(@useragents)))]; #take a random user agent
 $filename  ||= "$target.txt";
@@ -293,6 +326,9 @@ $ua->timeout($timeout);
 $ua->max_redirect(0);
 $ua->conn_cache(LWP::ConnCache->new());
 $ua->default_header('Referer' => "http://www.google.com/#q=a".int(rand(5)*rand(5)));#fake Referer
+
+#$ua->add_handler("request_send",  sub { shift->dump; return });
+#$ua->add_handler("response_done", sub { shift->dump; return });
 
 
 $|++;
@@ -340,14 +376,24 @@ sub trapsig
 	save_report($filename);
 	exit();
 }
+sub is_FQDN {
+   my $testval = shift(@_);                                
+   ( $testval =~ /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/g )
+   ? return 1
+   : return 0;
+}
 sub add
 {
 	my $x = lc($_[0]);
-	($x =~ /[\<\"]|freecellphonetracer|reversephonedetective|americanhvacparts|freephonetracer|phone\.addresses|reversephone\.theyellowpages|\.in-addr\.arpa|^\d+(\.|-)\d+(\.|-)/) ? return:0;
 	push(@{$SERV{$X}->{DUMP}},$x) if($verbose);
-	$x =~ s/https?\:\/\/|\*\.|^www\.|\///;#
-	++$SERV{$X}->{NB};
-	push(@result,$x);
+	#clean
+	$x =~ s/^https?\:\/\/|\*\.|^www\.|\///;#
+	if (is_FQDN($x))
+	{
+		++$SERV{$X}->{NB};
+		push(@result,$x);
+	}
+	#($x =~ /freecellphonetracer|reversephonedetective|americanhvacparts|freephonetracer|phone\.addresses|reversephone\.theyellowpages|\.in-addr\.arpa|^\d+(\.|-)\d+(\.|-)/) ? return:0;
 }
 sub getIP
 {
@@ -384,16 +430,54 @@ sub Req
 
 sub Yougetsignal
 {
-	my $resu = Req(sprintf($SERV{$X}->{URL},$target),$SERV{$X}->{DATA});
-	while ($resu =~ m/\["(.*?)\"\, \"(1|)\"\]/g)
+	my $url = "http://domains.yougetsignal.com/domains.php";
+	my $cookie_jar = HTTP::Cookies->new(autosave => 1);
+	my $browser = LWP::UserAgent->new(agent => $useragent);
+	$browser->cookie_jar($cookie_jar);
+
+	my $request = HTTP::Request->new(OPTIONS => $url);
+
+	$browser->default_header('Origin' => "http://www.yougetsignal.com");
+	$browser->default_header('Access-Control-Request-Method' => "POST");
+	$browser->default_header('Access-Control-Request-Headers' => "accept, content-type, x-prototype-version, x-requested-with");
+	$browser->default_header('Accept' => "*/*");
+	$browser->default_header('Referer' => "http://www.yougetsignal.com/tools/web-sites-on-web-server/");
+	$browser->default_header('Accept-Encoding' => "gzip, deflate, sdch");
+	$browser->default_header('Accept-Language' => "en-US,en;q=0.8,fr;q=0.6,ar;q=0.4,ja;q=0.2");
+
+	my $response = $browser->request($request);
+
+	my $browser = LWP::UserAgent->new(agent => $useragent);
+	$browser->cookie_jar($cookie_jar);
+
+
+	$browser->default_header('Origin' => "http://www.yougetsignal.com");
+	$browser->default_header('Accept' => "text/javascript, text/html, application/xml, text/xml, */*");
+	$browser->default_header('Referer' => "http://www.yougetsignal.com/tools/web-sites-on-web-server/");
+	$browser->default_header('X-Prototype-Version' => "1.6.0");
+	$browser->default_header('X-Requested-With' => "XMLHttpRequest");
+	$browser->default_header('Accept-Encoding' => "gzip, deflate");
+	$browser->default_header('Accept-Language' => "en-US,en;q=0.8,fr;q=0.6,ar;q=0.4,ja;q=0.2");
+	my $resu = $browser->post($url,
 	{
-		add($1);
-	}
-	if ($resu =~ m/Daily reverse IP check limit reached for/i)
+		'remoteAddress'=>$target,
+		'key'=>'',
+		'_'=>''
+	});
+
+	$content = $resu->decoded_content;
+	if ($content =~ m/limit reached/i)
 	{
 		$ERROR = "E1";
 		$SERV{$X}->{NB} = $ERROR;
+		return 0;
 	}
+	while($content =~ /\[\"(.*?)\",\s+"[^"]*"\]/sg)
+	{
+		add($1);
+	}
+
+
 }
 
 sub ViewDNS
@@ -413,6 +497,7 @@ sub ViewDNS
 
 sub eWhois
 {
+=pod
 	sub callback 
 	{
 		while($_[0] =~ m/"(.*?)","","","(UA\-[0-9]+\-[0-9]+|)",""/g)
@@ -436,6 +521,18 @@ sub eWhois
 		return;
 	}
 	$browser->get($url, ':content_cb' => \&callback );
+=cut
+	
+
+	for (my $i=1;$i<=7;$i++)
+	{
+		my $resu = Req(sprintf($SERV{$X}->{URL},$target,$i));
+
+			while ($resu =~ m/<td><a href="\/([^\"]+)"><span class="glyphicon glyphicon-search"/g)
+			{			
+				add($1);
+			}
+	}
 }
 
 sub Pagesinventory
@@ -444,7 +541,7 @@ sub Pagesinventory
 	{
 		my $resu = Req(sprintf($SERV{$X}->{URL},$target,$i));
 
-		if ($resu =~ m/<td>\.\.\.<\/td><\/table><div class="ntb-div">/g)
+		if ($resu !~ m/<td class="selected">\d+<\/td><\/table>/g)
 		{
 			while ($resu =~ m/<td><a href="\/domain\/(.*?)\.html">/g)
 			{			
